@@ -286,6 +286,49 @@ if [ -d $pcsc_driver_path ]; then
 	fi		
 fi
 
+pcsc_driver_path="/usr/lib64/pcsc"
+if [ -d $pcsc_driver_path ]; then
+	echo "PC/SC Driver Location - "$pcsc_driver_path
+	pcsc_driver_path_found='Y'
+	isOverWrite='y'
+	if [ -d $pcsc_driver_path"/drivers/"$BundleName".bundle" ]; then
+		echo "Driver Already Exists! Do you want to overwrite? (y/n)"
+		read isOverWrite
+	fi
+
+	if [ $isOverWrite = 'y' -o $isOverWrite = 'Y' ]; then
+		if [ -d $pcsc_driver_path"/drivers/"$BundleName".bundle" ]; then
+			pcsc_driver_path_found='Y'
+		else
+			sudo mkdir $pcsc_driver_path"/drivers/"$BundleName".bundle/"
+		fi
+
+		if [ -d $pcsc_driver_path"/drivers/"$BundleName".bundle/Contents/" ]; then
+			pcsc_driver_path_found='Y' 
+		else
+			sudo mkdir $pcsc_driver_path"/drivers/"$BundleName".bundle/Contents/"
+		fi
+
+		if [ -d $pcsc_driver_path"/drivers/"$BundleName".bundle/Contents/Linux" ]; then
+			pcsc_driver_path_found='Y' 
+		else
+			sudo mkdir $pcsc_driver_path"/drivers/"$BundleName".bundle/Contents/Linux"
+		fi
+
+		sudo cp "drivers/Info.plist" $pcsc_driver_path"/drivers/"$BundleName".bundle/Contents/."
+
+		sudo cp "drivers/"$DriverFileName $pcsc_driver_path"/drivers/"$BundleName".bundle/Contents/Linux/."
+#		if ./driver_install -r $ReaderName -b $BundleName -s $SrcPath -d $pcsc_driver_path -f $DriverFileName; then
+#			driver_install_result='Y'
+#		else
+#			driver_install_result='N'
+#			exit 1
+#		fi
+	else
+		exit 1
+	fi		
+fi
+
 if [ $pcsc_driver_path_found = 'N' ]; then
 	echo "No PC/SC Driver Location Found!"
 	pcsc_driver_path="/usr/local/pcsc"
